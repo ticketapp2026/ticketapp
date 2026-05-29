@@ -1,5 +1,1 @@
-{
-  "name": "rasskye-search",
-  "compatibility_date": "2026-05-27",
-  "main": "workers/search.js"
-}
+{"name":"rasskye","compatibility_date":"2026-05-27","pages_build_output_dir":"dist"}
