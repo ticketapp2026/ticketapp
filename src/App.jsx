@@ -11,14 +11,6 @@ const firebaseApp = initializeApp({
   appId: '1:685854140033:web:927752439435702108ce30'
 });
 const firebaseAuth = getAuth(firebaseApp);
-window.togglePanel = async () => {
-  const user = firebaseAuth.currentUser;
-  if (!user) {
-    try { await signInWithPopup(firebaseAuth, new GoogleAuthProvider()); } catch(e) { console.error(e); }
-  } else {
-    try { await signOut(firebaseAuth); } catch(e) { console.error(e); }
-  }
-};
 
 const LANG = {
   ru: {
@@ -80,6 +72,14 @@ function App() {
 
   const t = LANG[lang]
 
+  const handleAuth = async () => {
+    if (!user) {
+      try { await signInWithPopup(firebaseAuth, new GoogleAuthProvider()); } catch(e) { console.error(e); }
+    } else {
+      try { await signOut(firebaseAuth); } catch(e) { console.error(e); }
+    }
+  }
+
   useEffect(() => {
     const id = setTimeout(() => setVisible(true), 50)
     return () => clearTimeout(id)
@@ -124,7 +124,7 @@ function App() {
 
       <header className="header">
         <div className="header-top">
-          <button className="auth-btn" onClick={() => window.togglePanel && window.togglePanel()}>
+          <button className="auth-btn" onClick={handleAuth}>
             {user ? (user.displayName || 'Выйти') : 'Войти'}
           </button>
           <div className="lang-switcher">
