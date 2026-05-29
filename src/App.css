@@ -404,3 +404,46 @@ body {
   color: #4f46e5;
   box-shadow: 0 1px 4px rgba(0,0,0,0.1);
 }
+
+@media (max-width: 768px) {
+  .header-inner {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .header-right {
+    flex-wrap: wrap;
+    gap: 4px;
+    justify-content: flex-end;
+  }
+  .currency-switcher {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+  }
+  .currency-switcher button {
+    padding: 3px 6px;
+    font-size: 0.7rem;
+  }
+  .lang-switcher {
+    order: 2;
+  }
+  .auth-btn {
+    order: 1;
+  }
+}
+
+.auth-btn {
+  min-width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: #4f46e5;
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0;
+  transition: opacity 0.2s;
+}
+
+.auth-btn:hover { opacity: 0.85; }

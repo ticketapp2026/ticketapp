@@ -275,7 +275,7 @@ function App() {
           <div className="logo-text">Rasskye <span>Travel</span></div>
           <div className="header-right">
             <button className="auth-btn" onClick={user ? () => setShowProfile(true) : handleAuth}>
-              {user ? (user.displayName || 'Профиль') : 'Войти'}
+              {user ? (user.displayName?.[0]?.toUpperCase() || "?") : "Войти"}
             </button>
             <div className="currency-switcher">{Object.entries(CURRENCIES).map(([k,v]) => (<button key={k} className={currency===k?"active":""} onClick={()=>setCurrency(k)}>{v.flag} {v.name}</button>))}</div>
             <div className="lang-switcher">
