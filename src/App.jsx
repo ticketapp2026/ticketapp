@@ -1,7 +1,6 @@
-
 import { useEffect, useState } from 'react'
 import { initializeApp } from 'firebase/app'
-import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from 'firebase/auth'
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from 'firebase/auth'
 import './App.css'
 const firebaseApp = initializeApp({
   apiKey: 'AIzaSyDEkK_AmQ0bZWQWpirW4X5U2uwJdkbn4-0',
@@ -16,6 +15,8 @@ window.togglePanel = async () => {
   const user = firebaseAuth.currentUser;
   if (!user) {
     try { await signInWithPopup(firebaseAuth, new GoogleAuthProvider()); } catch(e) { console.error(e); }
+  } else {
+    try { await signOut(firebaseAuth); } catch(e) { console.error(e); }
   }
 };
 
@@ -124,7 +125,7 @@ function App() {
       <header className="header">
         <div className="header-top">
           <button className="auth-btn" onClick={() => window.togglePanel && window.togglePanel()}>
-            {user ? (user.displayName || 'Профиль') : 'Войти'}
+            {user ? (user.displayName || 'Выйти') : 'Войти'}
           </button>
           <div className="lang-switcher">
             <button className={lang === 'ru' ? 'active' : ''} onClick={() => setLang('ru')}>🇷🇺 RU</button>
