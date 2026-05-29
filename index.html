@@ -1,46 +1,56 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TicketApp — Дешёвые билеты</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, sans-serif;
-      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      text-align: center;
-    }
-    .container { padding: 40px 20px; }
-    h1 { font-size: 48px; margin-bottom: 16px; }
-    p { font-size: 20px; opacity: 0.8; margin-bottom: 32px; }
-    .badge {
-      background: rgba(255,255,255,0.15);
-      border: 1px solid rgba(255,255,255,0.3);
-      padding: 12px 28px;
-      border-radius: 50px;
-      font-size: 16px;
-      display: inline-block;
-    }
-  </style>
-<script nowprocket data-noptimize="1" data-cfasync="false" data-wpfc-render="false" seraph-accel-crit="1" data-no-defer="1">
-  (function () {
-      var script = document.createElement("script");
-      script.async = 1;
-      script.src = 'https://emrldtp.com/NTMzMjE0.js?t=533214';
-      document.head.appendChild(script);
-  })();
-</script></head>
-<body>
-  <div class="container">
-    <h1>✈️ TicketApp</h1>
-    <p>Самые дешёвые билеты — авиа, автобус, поезд</p>
-    <div class="badge">🚀 Скоро открытие</div>
-  </div>
-</body>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rasskye — Дешёвые авиабилеты, туры, отели</title>
+    <meta name="description" content="Найдите самые дешёвые авиабилеты, горящие туры и отели. Поиск по всем авиакомпаниям. Билеты на автобус и поезд.">
+    <meta name="keywords" content="дешёвые авиабилеты, горящие туры, билеты на самолет, дешевые билеты, поиск авиабилетов, rasskye">
+    <meta property="og:title" content="Rasskye — Дешёвые авиабилеты и туры">
+    <meta property="og:description" content="Найдите самые дешёвые авиабилеты, горящие туры и отели">
+    <meta property="og:url" content="https://rasskye.com">
+    <meta property="og:type" content="website">
+    <link rel="canonical" href="https://rasskye.com">
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- SEO -->
+    <title>Rasskye — Дешёвые авиабилеты, поезда и отели</title>
+    <meta name="description" content="Ищите и сравнивайте дешёвые авиабилеты, билеты на поезд и автобус, отели по всему миру." />
+    <meta name="keywords" content="дешёвые авиабилеты, купить билет на самолёт, билеты на поезд, отели, туры, путешествия" />
+    <meta name="author" content="Rasskye" />
+    <link rel="canonical" href="https://rasskye.com" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://rasskye.com" />
+    <meta property="og:title" content="Rasskye — Дешёвые авиабилеты и отели" />
+    <meta property="og:description" content="Сравнивайте цены на авиабилеты, поезда и отели." />
+    <meta property="og:image" content="https://rasskye.com/og-image.png" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Rasskye — Дешёвые авиабилеты и отели" />
+    <meta name="twitter:description" content="Сравнивайте цены на авиабилеты, поезда и отели." />
+
+    <!-- Robots -->
+    <meta name="robots" content="index, follow" />
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-5D85V4M7E3"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-5D85V4M7E3');
+    </script>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Rasskye">
+    </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>

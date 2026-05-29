@@ -1,0 +1,5 @@
+{
+  "name": "rasskye-search",
+  "compatibility_date": "2026-05-27",
+  "main": "workers/search.js"
+}

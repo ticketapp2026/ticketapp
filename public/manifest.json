@@ -1,0 +1,17 @@
+{
+  "name": "Rasskye — Дешёвые билеты",
+  "short_name": "Rasskye",
+  "description": "Поиск дешёвых авиабилетов, туров и отелей",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d0b1e",
+  "theme_color": "#6366f1",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
