@@ -856,7 +856,7 @@ function Dropdown({ label, options, value, onChange }) {
     <div ref={ref} style={{ position: 'relative' }}>
       <button
         onClick={() => setOpen(o => !o)}
-        style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)', borderRadius: '10px', padding: '6px 12px', color: '#fff', fontWeight: '700', fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap', minWidth: '80px' }}
+        style={{ background: 'rgba(255,255,255,0.9)', border: '1px solid rgba(79,70,229,0.3)'... color: '#4f46e5', fontWeight: '700', fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap', minWidth: '80px' }}
       >
         {current?.flag} {current?.label} <span style={{ fontSize: '0.6rem', opacity: 0.7 }}>▼</span>
       </button>
