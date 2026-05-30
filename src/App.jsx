@@ -380,6 +380,7 @@ function App() {
       <footer className="site-footer">
         <button onClick={() => setPage('home')} className={page==='home'?'active':''}>{t.footerHome}</button>
         <button onClick={() => setPage('about')} className={page==='about'?'active':''}>{t.footerAbout}</button>
+          <a href="/legal" target="_blank" style={{color:"#94a3b8",fontSize:"0.8rem",textDecoration:"none"}}>Реквизиты и оферта</a>
         <button onClick={() => setPage('contacts')} className={page==='contacts'?'active':''}>{t.footerContacts}</button>
       </footer>
 
