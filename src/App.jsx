@@ -44,7 +44,7 @@ const LANGUAGES = [
   { code: 'kk', label: 'KK', flag: '🇰🇿', name: 'Қазақша' },
   { code: 'ky', label: 'KY', flag: '🇰🇬', name: 'Кыргызча' },
   { code: 'tg', label: 'TG', flag: '🇹🇯', name: 'Тоҷикӣ' },
-  { code: 'ce', label: 'CE', flag: '🏔️', name: 'Нохчийн' },
+  { code: 'ce', label: 'CE', flag: '🟩🤍🟥', name: 'Нохчийн' },
 ]
 
 const LANG = {
