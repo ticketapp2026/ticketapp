@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { initializeApp } from 'firebase/app'
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from 'firebase/auth'
-import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore'
+import { getFirestore, doc, setDoc, getDoc, updateDoc } from 'firebase/firestore'
 import './App.css'
 
 const firebaseApp = initializeApp({
@@ -91,6 +91,110 @@ const SERVICES = [
   { icon: '🏡', name: { ru: 'Суточно.ру', en: 'Sutochno.ru' }, url: 'https://sutochno.tpk.lu/K2JsUujl' },
 ]
 
+const EMPTY_PASSENGER = { firstName: '', lastName: '', birthDate: '', gender: 'male', citizenship: 'RU', passportNumber: '', passportExpiry: '' }
+
+function PassengerForm({ initial, onSave, onCancel }) {
+  const [form, setForm] = useState(initial || EMPTY_PASSENGER)
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
+  const inputStyle = {
+    width: '100%', padding: '0.7rem 0.9rem', borderRadius: '10px',
+    border: '1.5px solid #e2e8f0', fontSize: '0.9rem', outline: 'none',
+    boxSizing: 'border-box', color: '#1e293b', background: '#f8fafc',
+    transition: 'border 0.2s'
+  }
+  const labelStyle = { fontSize: '0.72rem', color: '#94a3b8', marginBottom: '4px', display: 'block', fontWeight: '600', letterSpacing: '0.03em' }
+  const rowStyle = { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '10px' }
+
+  return (
+    <div>
+      <div style={rowStyle}>
+        <div>
+          <label style={labelStyle}>Имя</label>
+          <input style={inputStyle} placeholder="Иван" value={form.firstName} onChange={e => set('firstName', e.target.value)} />
+        </div>
+        <div>
+          <label style={labelStyle}>Фамилия</label>
+          <input style={inputStyle} placeholder="Иванов" value={form.lastName} onChange={e => set('lastName', e.target.value)} />
+        </div>
+      </div>
+      <div style={rowStyle}>
+        <div>
+          <label style={labelStyle}>Дата рождения</label>
+          <input style={inputStyle} type="date" value={form.birthDate} onChange={e => set('birthDate', e.target.value)} />
+        </div>
+        <div>
+          <label style={labelStyle}>Пол</label>
+          <select style={{...inputStyle, cursor:'pointer'}} value={form.gender} onChange={e => set('gender', e.target.value)}>
+            <option value="male">Мужской</option>
+            <option value="female">Женский</option>
+          </select>
+        </div>
+      </div>
+      <div style={rowStyle}>
+        <div>
+          <label style={labelStyle}>Гражданство</label>
+          <select style={{...inputStyle, cursor:'pointer'}} value={form.citizenship} onChange={e => set('citizenship', e.target.value)}>
+            <option value="RU">🇷🇺 Россия</option>
+            <option value="BY">🇧🇾 Беларусь</option>
+            <option value="KZ">🇰🇿 Казахстан</option>
+            <option value="UA">🇺🇦 Украина</option>
+            <option value="UZ">🇺🇿 Узбекистан</option>
+            <option value="OTHER">🌍 Другое</option>
+          </select>
+        </div>
+        <div>
+          <label style={labelStyle}>Серия и номер паспорта</label>
+          <input style={inputStyle} placeholder="1234 567890" value={form.passportNumber} onChange={e => set('passportNumber', e.target.value)} />
+        </div>
+      </div>
+      <div style={{marginBottom:'16px'}}>
+        <label style={labelStyle}>Срок действия паспорта</label>
+        <input style={{...inputStyle, width:'calc(50% - 5px)'}} type="date" value={form.passportExpiry} onChange={e => set('passportExpiry', e.target.value)} />
+      </div>
+      <div style={{display:'flex', gap:'8px'}}>
+        <button
+          onClick={() => onSave(form)}
+          style={{flex:1, padding:'0.8rem', borderRadius:'12px', border:'none', background:'linear-gradient(135deg,#4f46e5,#7c3aed)', color:'#fff', fontWeight:'700', fontSize:'0.9rem', cursor:'pointer'}}
+        >
+          ✅ Сохранить
+        </button>
+        <button
+          onClick={onCancel}
+          style={{flex:1, padding:'0.8rem', borderRadius:'12px', border:'1.5px solid #e2e8f0', background:'transparent', color:'#94a3b8', fontWeight:'600', fontSize:'0.9rem', cursor:'pointer'}}
+        >
+          Отмена
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function PassengerCard({ p, index, onEdit, onDelete }) {
+  const genderIcon = p.gender === 'female' ? '👩' : '👨'
+  const initials = `${p.firstName?.[0] || ''}${p.lastName?.[0] || ''}`.toUpperCase()
+  return (
+    <div style={{background:'#f8fafc', borderRadius:'14px', padding:'14px 16px', border:'1px solid #e2e8f0', marginBottom:'10px'}}>
+      <div style={{display:'flex', alignItems:'center', gap:'12px'}}>
+        <div style={{width:'40px', height:'40px', borderRadius:'50%', background:'linear-gradient(135deg,#4f46e5,#7c3aed)', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:'800', fontSize:'0.9rem', flexShrink:0}}>
+          {initials || genderIcon}
+        </div>
+        <div style={{flex:1, minWidth:0}}>
+          <div style={{fontWeight:'700', color:'#1e293b', fontSize:'0.95rem', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>
+            {p.firstName} {p.lastName}
+          </div>
+          <div style={{fontSize:'0.75rem', color:'#94a3b8', marginTop:'2px'}}>
+            {p.birthDate ? `ДР: ${p.birthDate}` : ''}{p.passportNumber ? ` · №${p.passportNumber}` : ''}
+          </div>
+        </div>
+        <div style={{display:'flex', gap:'6px', flexShrink:0}}>
+          <button onClick={() => onEdit(index)} style={{padding:'6px 10px', borderRadius:'8px', border:'1.5px solid #e2e8f0', background:'#fff', color:'#4f46e5', fontSize:'0.8rem', cursor:'pointer', fontWeight:'600'}}>✏️</button>
+          <button onClick={() => onDelete(index)} style={{padding:'6px 10px', borderRadius:'8px', border:'1.5px solid #fee2e2', background:'#fff', color:'#ef4444', fontSize:'0.8rem', cursor:'pointer', fontWeight:'600'}}>🗑️</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function loadWidget(containerId, scriptId, src) {
   const existing = document.getElementById(scriptId)
   if (existing) existing.remove()
@@ -116,6 +220,10 @@ function App() {
   const [copied, setCopied] = useState(false)
   const [currency, setCurrency] = useState('rub')
   const [rates, setRates] = useState({ usd: 0.011, eur: 0.010 })
+  const [profileTab, setProfileTab] = useState('main') // 'main' | 'passengers'
+  const [passengers, setPassengers] = useState([])
+  const [editingIndex, setEditingIndex] = useState(null) // null = не редактируем, -1 = новый, N = редактируем N
+  const [savingPassenger, setSavingPassenger] = useState(false)
 
   const t = LANG[lang]
 
@@ -133,6 +241,7 @@ function App() {
             refCode: generateRefCode(u.uid),
             points: 0,
             refs: 0,
+            passengers: [],
             createdAt: new Date().toISOString()
           })
         }
@@ -144,10 +253,37 @@ function App() {
   }
 
   const loadUserData = async (u) => {
-    if (!u) { setUserData(null); return }
+    if (!u) { setUserData(null); setPassengers([]); return }
     const ref = doc(db, 'users', u.uid)
     const snap = await getDoc(ref)
-    if (snap.exists()) setUserData(snap.data())
+    if (snap.exists()) {
+      const data = snap.data()
+      setUserData(data)
+      setPassengers(data.passengers || [])
+    }
+  }
+
+  const savePassengers = async (newList) => {
+    if (!user) return
+    setSavingPassenger(true)
+    try {
+      await updateDoc(doc(db, 'users', user.uid), { passengers: newList })
+      setPassengers(newList)
+    } catch(e) { console.error(e) }
+    setSavingPassenger(false)
+  }
+
+  const handleSavePassenger = async (form) => {
+    const updated = [...passengers]
+    if (editingIndex === -1) updated.push(form)
+    else updated[editingIndex] = form
+    await savePassengers(updated)
+    setEditingIndex(null)
+  }
+
+  const handleDeletePassenger = async (index) => {
+    const updated = passengers.filter((_, i) => i !== index)
+    await savePassengers(updated)
   }
 
   useEffect(() => {
@@ -256,6 +392,13 @@ function App() {
     setTimeout(() => setCopied(false), 2000)
   }
 
+  const tabStyle = (active) => ({
+    flex: 1, padding: '0.6rem', borderRadius: '10px', border: 'none', cursor: 'pointer',
+    fontWeight: '700', fontSize: '0.85rem', transition: 'all 0.2s',
+    background: active ? 'linear-gradient(135deg,#4f46e5,#7c3aed)' : 'transparent',
+    color: active ? '#fff' : '#94a3b8',
+  })
+
   return (
     <div className={`app ${visible ? 'app--visible' : ''}`}>
 
@@ -263,7 +406,7 @@ function App() {
         <div className="header-inner">
           <div className="logo-text">Rasskye <span>Travel</span></div>
           <div className="header-right">
-            <button className="auth-btn" onClick={user ? () => setShowProfile(true) : handleAuth}>
+            <button className="auth-btn" onClick={user ? () => { setShowProfile(true); setProfileTab('main'); setEditingIndex(null) } : handleAuth}>
               {user ? (user.displayName?.[0]?.toUpperCase() || '?') : 'Войти'}
             </button>
             <div className="currency-switcher">
@@ -313,7 +456,6 @@ function App() {
       </div>
 
       <div className="main-content">
-
         <div className="partners" style={{marginTop:'1.5rem'}}>
           <div className="partner-badge">Aviasales</div>
           <div className="partner-badge">Travelata</div>
@@ -378,39 +520,95 @@ function App() {
       </footer>
 
       {showProfile && userData && createPortal(
-        <div className="page-overlay" onClick={() => setShowProfile(false)}>
+        <div className="page-overlay" onClick={() => { setShowProfile(false); setEditingIndex(null) }}>
           <div className="page-modal" onClick={e => e.stopPropagation()}>
-            <button className="page-close" onClick={() => setShowProfile(false)}>✕</button>
-            <h2>👤 Личный кабинет</h2>
-            <p style={{marginBottom:'8px',color:'#1e293b'}}><strong>{userData.name}</strong></p>
-            <p style={{marginBottom:'20px',color:'#94a3b8',fontSize:'13px'}}>{userData.email}</p>
-            <div style={{display:'flex',gap:'12px',marginBottom:'20px'}}>
-              <div style={{flex:1,background:'#eef2ff',borderRadius:'14px',padding:'16px',textAlign:'center',border:'1px solid #c7d2fe'}}>
-                <div style={{fontSize:'1.8rem',fontWeight:'800',color:'#4f46e5'}}>{userData.points}</div>
-                <div style={{fontSize:'0.75rem',color:'#94a3b8',marginTop:'4px'}}>баллов</div>
-              </div>
-              <div style={{flex:1,background:'#eef2ff',borderRadius:'14px',padding:'16px',textAlign:'center',border:'1px solid #c7d2fe'}}>
-                <div style={{fontSize:'1.8rem',fontWeight:'800',color:'#4f46e5'}}>{userData.refs}</div>
-                <div style={{fontSize:'0.75rem',color:'#94a3b8',marginTop:'4px'}}>друзей</div>
-              </div>
+            <button className="page-close" onClick={() => { setShowProfile(false); setEditingIndex(null) }}>✕</button>
+
+            {/* Tabs */}
+            <div style={{display:'flex', gap:'6px', background:'#f1f5f9', borderRadius:'12px', padding:'4px', marginBottom:'20px'}}>
+              <button style={tabStyle(profileTab==='main')} onClick={() => { setProfileTab('main'); setEditingIndex(null) }}>👤 Профиль</button>
+              <button style={tabStyle(profileTab==='passengers')} onClick={() => { setProfileTab('passengers'); setEditingIndex(null) }}>
+                🧳 Пассажиры {passengers.length > 0 && <span style={{background:'rgba(255,255,255,0.3)',borderRadius:'99px',padding:'1px 6px',fontSize:'0.75rem',marginLeft:'4px'}}>{passengers.length}</span>}
+              </button>
             </div>
-            <div style={{background:'#f8fafc',borderRadius:'14px',padding:'16px',marginBottom:'12px',border:'1px solid #e2e8f0'}}>
-              <div style={{fontSize:'0.75rem',color:'#94a3b8',marginBottom:'8px'}}>Прогресс до скидки</div>
-              <div style={{background:'#e2e8f0',borderRadius:'99px',height:'8px',marginBottom:'8px'}}>
-                <div style={{background:'linear-gradient(90deg,#4f46e5,#7c3aed)',borderRadius:'99px',height:'8px',width:`${Math.min((userData.points/1000)*100,100)}%`,transition:'width 0.3s'}}></div>
-              </div>
-              <div style={{fontSize:'0.75rem',color:'#64748b',marginBottom:'16px'}}>
-                {userData.points>=1000 ? '✅ Доступна скидка 1000 ₽!' : `${userData.points} / 1000 баллов — ещё ${1000-userData.points} до скидки`}
-              </div>
-              <div style={{fontSize:'0.75rem',color:'#94a3b8',marginBottom:'8px'}}>Ваш реферальный код</div>
-              <div style={{fontSize:'1.4rem',fontWeight:'800',letterSpacing:'3px',color:'#4f46e5'}}>{userData.refCode}</div>
-            </div>
-            <button onClick={copyRef} style={{width:'100%',padding:'0.9rem',borderRadius:'14px',border:'none',background:'linear-gradient(135deg,#4f46e5,#7c3aed)',color:'#fff',fontSize:'0.95rem',fontWeight:'700',cursor:'pointer',marginBottom:'10px'}}>
-              {copied ? '✅ Ссылка скопирована!' : '🔗 Пригласить друга'}
-            </button>
-            <button onClick={handleAuth} style={{width:'100%',padding:'0.7rem',borderRadius:'14px',border:'1.5px solid #e2e8f0',background:'transparent',color:'#94a3b8',fontSize:'0.85rem',cursor:'pointer'}}>
-              Выйти
-            </button>
+
+            {profileTab === 'main' && (
+              <>
+                <h2 style={{marginBottom:'4px'}}>👤 Личный кабинет</h2>
+                <p style={{marginBottom:'8px',color:'#1e293b'}}><strong>{userData.name}</strong></p>
+                <p style={{marginBottom:'20px',color:'#94a3b8',fontSize:'13px'}}>{userData.email}</p>
+                <div style={{display:'flex',gap:'12px',marginBottom:'20px'}}>
+                  <div style={{flex:1,background:'#eef2ff',borderRadius:'14px',padding:'16px',textAlign:'center',border:'1px solid #c7d2fe'}}>
+                    <div style={{fontSize:'1.8rem',fontWeight:'800',color:'#4f46e5'}}>{userData.points}</div>
+                    <div style={{fontSize:'0.75rem',color:'#94a3b8',marginTop:'4px'}}>баллов</div>
+                  </div>
+                  <div style={{flex:1,background:'#eef2ff',borderRadius:'14px',padding:'16px',textAlign:'center',border:'1px solid #c7d2fe'}}>
+                    <div style={{fontSize:'1.8rem',fontWeight:'800',color:'#4f46e5'}}>{userData.refs}</div>
+                    <div style={{fontSize:'0.75rem',color:'#94a3b8',marginTop:'4px'}}>друзей</div>
+                  </div>
+                </div>
+                <div style={{background:'#f8fafc',borderRadius:'14px',padding:'16px',marginBottom:'12px',border:'1px solid #e2e8f0'}}>
+                  <div style={{fontSize:'0.75rem',color:'#94a3b8',marginBottom:'8px'}}>Прогресс до скидки</div>
+                  <div style={{background:'#e2e8f0',borderRadius:'99px',height:'8px',marginBottom:'8px'}}>
+                    <div style={{background:'linear-gradient(90deg,#4f46e5,#7c3aed)',borderRadius:'99px',height:'8px',width:`${Math.min((userData.points/1000)*100,100)}%`,transition:'width 0.3s'}}></div>
+                  </div>
+                  <div style={{fontSize:'0.75rem',color:'#64748b',marginBottom:'16px'}}>
+                    {userData.points>=1000 ? '✅ Доступна скидка 1000 ₽!' : `${userData.points} / 1000 баллов — ещё ${1000-userData.points} до скидки`}
+                  </div>
+                  <div style={{fontSize:'0.75rem',color:'#94a3b8',marginBottom:'8px'}}>Ваш реферальный код</div>
+                  <div style={{fontSize:'1.4rem',fontWeight:'800',letterSpacing:'3px',color:'#4f46e5'}}>{userData.refCode}</div>
+                </div>
+                <button onClick={copyRef} style={{width:'100%',padding:'0.9rem',borderRadius:'14px',border:'none',background:'linear-gradient(135deg,#4f46e5,#7c3aed)',color:'#fff',fontSize:'0.95rem',fontWeight:'700',cursor:'pointer',marginBottom:'10px'}}>
+                  {copied ? '✅ Ссылка скопирована!' : '🔗 Пригласить друга'}
+                </button>
+                <button onClick={handleAuth} style={{width:'100%',padding:'0.7rem',borderRadius:'14px',border:'1.5px solid #e2e8f0',background:'transparent',color:'#94a3b8',fontSize:'0.85rem',cursor:'pointer'}}>
+                  Выйти
+                </button>
+              </>
+            )}
+
+            {profileTab === 'passengers' && (
+              <>
+                <h2 style={{marginBottom:'4px'}}>🧳 Мои пассажиры</h2>
+                <p style={{marginBottom:'16px',color:'#94a3b8',fontSize:'13px'}}>Данные сохраняются и автоматически подставляются при бронировании</p>
+
+                {editingIndex === null && (
+                  <>
+                    {passengers.length === 0 && (
+                      <div style={{textAlign:'center',padding:'2rem 0',color:'#94a3b8'}}>
+                        <div style={{fontSize:'3rem',marginBottom:'8px'}}>🧳</div>
+                        <div style={{fontSize:'0.9rem'}}>Пассажиры ещё не добавлены</div>
+                      </div>
+                    )}
+                    {passengers.map((p, i) => (
+                      <PassengerCard key={i} p={p} index={i} onEdit={setEditingIndex} onDelete={handleDeletePassenger} />
+                    ))}
+                    {passengers.length < 9 && (
+                      <button
+                        onClick={() => setEditingIndex(-1)}
+                        style={{width:'100%',padding:'0.85rem',borderRadius:'14px',border:'2px dashed #c7d2fe',background:'#f5f3ff',color:'#4f46e5',fontWeight:'700',fontSize:'0.9rem',cursor:'pointer',marginTop:'4px'}}
+                      >
+                        + Добавить пассажира
+                      </button>
+                    )}
+                  </>
+                )}
+
+                {editingIndex !== null && (
+                  <>
+                    <div style={{fontSize:'0.85rem',fontWeight:'700',color:'#4f46e5',marginBottom:'14px'}}>
+                      {editingIndex === -1 ? '➕ Новый пассажир' : `✏️ Редактирование пассажира ${editingIndex + 1}`}
+                    </div>
+                    <PassengerForm
+                      initial={editingIndex === -1 ? null : passengers[editingIndex]}
+                      onSave={handleSavePassenger}
+                      onCancel={() => setEditingIndex(null)}
+                    />
+                    {savingPassenger && <div style={{textAlign:'center',color:'#94a3b8',fontSize:'0.85rem',marginTop:'8px'}}>Сохранение...</div>}
+                  </>
+                )}
+              </>
+            )}
           </div>
         </div>,
         document.body
