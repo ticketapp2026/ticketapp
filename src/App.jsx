@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { initializeApp } from 'firebase/app'
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from 'firebase/auth'
 import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore'
@@ -11,18 +12,15 @@ const firebaseApp = initializeApp({
   storageBucket: 'rasskye-1cf37.firebasestorage.app',
   messagingSenderId: '685854140033',
   appId: '1:685854140033:web:927752439435702108ce30'
-});
-const firebaseAuth = getAuth(firebaseApp);
-const db = getFirestore(firebaseApp);
-const CURRENCIES = { rub: { symbol: "₽", name: "RUB", flag: "🇷🇺" }, usd: { symbol: "$", name: "USD", flag: "🇺🇸" }, eur: { symbol: "€", name: "EUR", flag: "🇪🇺" } }
-const generateRefCode = (uid) => uid.slice(0, 8).toUpperCase();
+})
+const firebaseAuth = getAuth(firebaseApp)
+const db = getFirestore(firebaseApp)
+const CURRENCIES = { rub: { symbol: '₽', name: 'RUB', flag: '🇷🇺' }, usd: { symbol: '$', name: 'USD', flag: '🇺🇸' }, eur: { symbol: '€', name: 'EUR', flag: '🇪🇺' } }
+const generateRefCode = (uid) => uid.slice(0, 8).toUpperCase()
 
-
-async function fetchRates() { try { const res = await fetch("https://api.exchangerate-api.com/v4/latest/RUB"); const data = await res.json(); return { usd: data.rates.USD, eur: data.rates.EUR } } catch { return { usd: 0.011, eur: 0.010 } } }
-
-function convertPrice(p, c, r) { if (c==="rub") return p; if (c==="usd") return Math.round(p * r.usd); return Math.round(p * r.eur); }
-
-function formatPrice(a, c) { const s = CURRENCIES[c].symbol; return c==="rub" ? a.toLocaleString("ru-RU")+" "+s : s+a.toLocaleString("en-US"); }
+async function fetchRates() { try { const res = await fetch('https://api.exchangerate-api.com/v4/latest/RUB'); const data = await res.json(); return { usd: data.rates.USD, eur: data.rates.EUR } } catch { return { usd: 0.011, eur: 0.010 } } }
+function convertPrice(p, c, r) { if (c === 'rub') return p; if (c === 'usd') return Math.round(p * r.usd); return Math.round(p * r.eur) }
+function formatPrice(a, c) { const s = CURRENCIES[c].symbol; return c === 'rub' ? a.toLocaleString('ru-RU') + ' ' + s : s + a.toLocaleString('en-US') }
 
 const LANG = {
   ru: {
@@ -116,7 +114,7 @@ function App() {
   const [userData, setUserData] = useState(null)
   const [showProfile, setShowProfile] = useState(false)
   const [copied, setCopied] = useState(false)
-  const [currency, setCurrency] = useState("rub")
+  const [currency, setCurrency] = useState('rub')
   const [rates, setRates] = useState({ usd: 0.011, eur: 0.010 })
 
   const t = LANG[lang]
@@ -138,15 +136,15 @@ function App() {
             createdAt: new Date().toISOString()
           })
         }
-      } catch(e) { console.error(e); }
+      } catch(e) { console.error(e) }
     } else {
       setShowProfile(false)
-      try { await signOut(firebaseAuth); } catch(e) { console.error(e); }
+      try { await signOut(firebaseAuth) } catch(e) { console.error(e) }
     }
   }
 
   const loadUserData = async (u) => {
-    if (!u) { setUserData(null); return; }
+    if (!u) { setUserData(null); return }
     const ref = doc(db, 'users', u.uid)
     const snap = await getDoc(ref)
     if (snap.exists()) setUserData(snap.data())
@@ -158,8 +156,7 @@ function App() {
   }, [])
 
   useEffect(() => {
-
-  return onAuthStateChanged(firebaseAuth, (u) => {
+    return onAuthStateChanged(firebaseAuth, (u) => {
       setUser(u)
       loadUserData(u)
     })
@@ -172,9 +169,9 @@ function App() {
           `https://tpwidg.com/content?currency=${lang==='ru'?'rub':'usd'}&trs=533294&shmarker=732972&show_hotels=false&powered_by=true&locale=${lang}&searchUrl=www.aviasales.com%2Fsearch&primary_override=%234f46e5&color_button=%234f46e5&color_icons=%237c3aed&dark=%23ffffff&light=%23f8fafc&secondary=%2364748b&special=%234f46e5&color_focused=%234f46e5&border_radius=14&plain=false&promo_id=7879&campaign_id=100`)
         break
       case 'trains':
-  loadWidget('trains-container', 'tutu-widget-script',
-    'https://tpwidg.com/content?trs=533294&shmarker=732972&tab1=1&tabDef=1&powered_by=true&color_scheme=basic_white&hide_logo=true&campaign_id=45&promo_id=1809')
-  break
+        loadWidget('trains-container', 'tutu-widget-script',
+          'https://tpwidg.com/content?trs=533294&shmarker=732972&tab1=1&tabDef=1&powered_by=true&color_scheme=basic_white&hide_logo=true&campaign_id=45&promo_id=1809')
+        break
       case 'tours':
         loadWidget('tours-container', 'travelata-search-script',
           'https://tpwidg.com/content?trs=533294&shmarker=732972&locale=ru&powered_by=true&border_radius=5&plain=true&color_background=%23ffffff&color_button=%234f46e5&color_button_text=%23ffffff&promo_id=4694&campaign_id=43')
@@ -200,15 +197,7 @@ function App() {
     div.id = contId
     container.appendChild(div)
     window._tat = window._tat || []
-    window._tat.push({
-      id: contId,
-      affiliateurl: 'https://travelata.tpk.lu/N5aNnOKQ',
-      countries: [0],
-      cellWidth: 160,
-      columns: 5,
-      rows: 3,
-      WLURL: ''
-    })
+    window._tat.push({ id: contId, affiliateurl: 'https://travelata.tpk.lu/N5aNnOKQ', countries: [0], cellWidth: 160, columns: 5, rows: 3, WLURL: '' })
     const script = document.createElement('script')
     script.id = 'travelata-tizer-script'
     script.type = 'text/javascript'
@@ -275,12 +264,16 @@ function App() {
           <div className="logo-text">Rasskye <span>Travel</span></div>
           <div className="header-right">
             <button className="auth-btn" onClick={user ? () => setShowProfile(true) : handleAuth}>
-              {user ? (user.displayName?.[0]?.toUpperCase() || "?") : "Войти"}
+              {user ? (user.displayName?.[0]?.toUpperCase() || '?') : 'Войти'}
             </button>
-            <div className="currency-switcher">{Object.entries(CURRENCIES).map(([k,v]) => (<button key={k} className={currency===k?"active":""} onClick={()=>setCurrency(k)}>{v.flag} {v.name}</button>))}</div>
+            <div className="currency-switcher">
+              {Object.entries(CURRENCIES).map(([k,v]) => (
+                <button key={k} className={currency===k?'active':''} onClick={()=>setCurrency(k)}>{v.flag} {v.name}</button>
+              ))}
+            </div>
             <div className="lang-switcher">
-              <button className={lang === 'ru' ? 'active' : ''} onClick={() => setLang('ru')}>🇷🇺 RU</button>
-              <button className={lang === 'en' ? 'active' : ''} onClick={() => setLang('en')}>🇬🇧 EN</button>
+              <button className={lang==='ru'?'active':''} onClick={() => setLang('ru')}>🇷🇺 RU</button>
+              <button className={lang==='en'?'active':''} onClick={() => setLang('en')}>🇬🇧 EN</button>
             </div>
           </div>
         </div>
@@ -304,15 +297,15 @@ function App() {
           </div>
           {transport==='flights' && <div id="aviasales-container" style={{minHeight:'400px',width:'100%'}}></div>}
           {transport==='trains' && (
-  <div style={{textAlign:'center',padding:'3rem 1rem'}}>
-    <div style={{fontSize:'3rem',marginBottom:'1rem'}}>🚂</div>
-    <h3 style={{fontSize:'1.3rem',fontWeight:'700',color:'#1e293b',marginBottom:'0.5rem'}}>Билеты на поезда</h3>
-    <p style={{color:'#64748b',marginBottom:'1.5rem'}}>Поиск и покупка ЖД билетов через Tutu.ru</p>
-    <a href="https://tutu.tpk.lu/e9tdxDVM" target="_blank" rel="noreferrer">
-      <button className="search-btn">🔍 Найти билеты на поезд →</button>
-    </a>
-  </div>
-)}
+            <div style={{textAlign:'center',padding:'3rem 1rem'}}>
+              <div style={{fontSize:'3rem',marginBottom:'1rem'}}>🚂</div>
+              <h3 style={{fontSize:'1.3rem',fontWeight:'700',color:'#1e293b',marginBottom:'0.5rem'}}>Билеты на поезда</h3>
+              <p style={{color:'#64748b',marginBottom:'1.5rem'}}>Поиск и покупка ЖД билетов через Tutu.ru</p>
+              <a href="https://tutu.tpk.lu/e9tdxDVM" target="_blank" rel="noreferrer">
+                <button className="search-btn">🔍 Найти билеты на поезд →</button>
+              </a>
+            </div>
+          )}
           {transport==='tours' && <div id="tours-container" style={{minHeight:'300px',width:'100%'}}></div>}
           {transport==='hotels' && <div id="hotels-container" style={{minHeight:'300px',width:'100%'}}></div>}
           {transport==='insurance' && <div style={{background:'#fff',borderRadius:'12px',padding:'16px'}}><div id="insurance-container" style={{minHeight:'280px',width:'100%'}}></div></div>}
@@ -338,7 +331,7 @@ function App() {
               <img src={d.img} alt={d.name[lang]} className="dest-img" />
               <div className="dest-info">
                 <h3>{d.name[lang]}</h3>
-                <span>{currency==="rub" ? d.price : formatPrice(convertPrice(d.priceRub, currency, rates), currency)}</span>
+                <span>{currency==='rub' ? d.price : formatPrice(convertPrice(d.priceRub, currency, rates), currency)}</span>
               </div>
             </a>
           ))}
@@ -380,11 +373,11 @@ function App() {
       <footer className="site-footer">
         <button onClick={() => setPage('home')} className={page==='home'?'active':''}>{t.footerHome}</button>
         <button onClick={() => setPage('about')} className={page==='about'?'active':''}>{t.footerAbout}</button>
-          <a href="/legal" target="_blank" style={{color:"#94a3b8",fontSize:"0.8rem",textDecoration:"none"}}>Реквизиты и оферта</a>
+        <a href="/legal" target="_blank" style={{color:'#94a3b8',fontSize:'0.8rem',textDecoration:'none'}}>Реквизиты и оферта</a>
         <button onClick={() => setPage('contacts')} className={page==='contacts'?'active':''}>{t.footerContacts}</button>
       </footer>
 
-      {showProfile && userData && (
+      {showProfile && userData && createPortal(
         <div className="page-overlay" onClick={() => setShowProfile(false)}>
           <div className="page-modal" onClick={e => e.stopPropagation()}>
             <button className="page-close" onClick={() => setShowProfile(false)}>✕</button>
@@ -403,22 +396,27 @@ function App() {
             </div>
             <div style={{background:'#f8fafc',borderRadius:'14px',padding:'16px',marginBottom:'12px',border:'1px solid #e2e8f0'}}>
               <div style={{fontSize:'0.75rem',color:'#94a3b8',marginBottom:'8px'}}>Прогресс до скидки</div>
-              <div style={{background:'#e2e8f0',borderRadius:'99px',height:'8px',marginBottom:'8px'}}><div style={{background:'linear-gradient(90deg,#4f46e5,#7c3aed)',borderRadius:'99px',height:'8px',width:`${Math.min((userData.points/1000)*100,100)}%`,transition:'width 0.3s'}}></div></div>
-              <div style={{fontSize:'0.75rem',color:'#64748b',marginBottom:'16px'}}>{userData.points>=1000?'✅ Доступна скидка 1000 ₽!':`${userData.points} / 1000 баллов — ещё ${1000-userData.points} до скидки`}</div>
-            <div style={{fontSize:'0.75rem',color:'#94a3b8',marginBottom:'8px'}}>Ваш реферальный код</div>
+              <div style={{background:'#e2e8f0',borderRadius:'99px',height:'8px',marginBottom:'8px'}}>
+                <div style={{background:'linear-gradient(90deg,#4f46e5,#7c3aed)',borderRadius:'99px',height:'8px',width:`${Math.min((userData.points/1000)*100,100)}%`,transition:'width 0.3s'}}></div>
+              </div>
+              <div style={{fontSize:'0.75rem',color:'#64748b',marginBottom:'16px'}}>
+                {userData.points>=1000 ? '✅ Доступна скидка 1000 ₽!' : `${userData.points} / 1000 баллов — ещё ${1000-userData.points} до скидки`}
+              </div>
+              <div style={{fontSize:'0.75rem',color:'#94a3b8',marginBottom:'8px'}}>Ваш реферальный код</div>
               <div style={{fontSize:'1.4rem',fontWeight:'800',letterSpacing:'3px',color:'#4f46e5'}}>{userData.refCode}</div>
             </div>
             <button onClick={copyRef} style={{width:'100%',padding:'0.9rem',borderRadius:'14px',border:'none',background:'linear-gradient(135deg,#4f46e5,#7c3aed)',color:'#fff',fontSize:'0.95rem',fontWeight:'700',cursor:'pointer',marginBottom:'10px'}}>
-              {copied?'✅ Ссылка скопирована!':'🔗 Пригласить друга'}
+              {copied ? '✅ Ссылка скопирована!' : '🔗 Пригласить друга'}
             </button>
             <button onClick={handleAuth} style={{width:'100%',padding:'0.7rem',borderRadius:'14px',border:'1.5px solid #e2e8f0',background:'transparent',color:'#94a3b8',fontSize:'0.85rem',cursor:'pointer'}}>
               Выйти
             </button>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
-      {page === 'about' && (
+      {page === 'about' && createPortal(
         <div className="page-overlay" onClick={() => setPage('home')}>
           <div className="page-modal" onClick={e => e.stopPropagation()}>
             <button className="page-close" onClick={() => setPage('home')}>✕</button>
@@ -427,10 +425,11 @@ function App() {
             <p>Мы работаем с надёжными партнёрами — Aviasales, Travelata, Яндекс.Путешествия и другими.</p>
             <p>Наша миссия — сделать путешествия доступными для каждого.</p>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
-      {page === 'contacts' && (
+      {page === 'contacts' && createPortal(
         <div className="page-overlay" onClick={() => setPage('home')}>
           <div className="page-modal" onClick={e => e.stopPropagation()}>
             <button className="page-close" onClick={() => setPage('home')}>✕</button>
@@ -459,8 +458,10 @@ function App() {
               </a>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
+
     </div>
   )
 }
