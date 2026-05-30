@@ -857,7 +857,7 @@ function Dropdown({ label, options, value, onChange }) {
         onClick={() => setOpen(o => !o)}
         style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)', borderRadius: '10px', padding: '6px 10px', color: '#fff', fontWeight: '700', fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}
       >
-        {current?.flag} {current?.label} <span style={{ fontSize: '0.6rem', opacity: 0.7 }}>▼</span>
+        {current?.flag} {current?.label}{current?.symbol ? ' ' + current?.symbol : ''} <span style={{ fontSize: '0.6rem', opacity: 0.7 }}>▼</span>
       </button>
       {open && (
         <div style={{ position: 'absolute', top: '110%', right: 0, background: '#fff', borderRadius: '12px', boxShadow: '0 8px 32px rgba(0,0,0,0.18)', zIndex: 9999, minWidth: '160px', maxHeight: '280px', overflowY: 'auto', border: '1px solid #e2e8f0' }}>
